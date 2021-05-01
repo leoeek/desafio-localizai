@@ -1,30 +1,62 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
+  <modal-factory />
   <router-view/>
 </template>
 
+<script>
+import { watch } from 'vue'
+import ModalFactory from '@/components/ModalFactory'
+import { useRouter, useRoute } from 'vue-router'
+import services from './services'
+import { setCurrentUser } from '@/store/user'
+export default {
+  components: { ModalFactory },
+  setup () {
+    const router = useRouter()
+    const route = useRoute()
+    watch(() => route.path, async () => {
+      if (route.meta.hasAuth) {
+        const token = window.localStorage.getItem('token')
+        if (!token) {
+          router.push({ name: 'Home' })
+          return
+        }
+
+        const { data } = await services.users.getProfile()
+        setCurrentUser(data)
+      }
+    })
+  }
+}
+</script>
+
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: 0;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+html,
+body {
+  height: 100vh;
+  font-family: RobotoRegular, Avenir, Helvetica, Arial, sans-serif;
+  text-rendering: optimizelegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 
-#nav {
-  padding: 30px;
+body {
+  font-size: 1.6rem;
 }
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+button {
+  cursor: pointer;
 }
 </style>
