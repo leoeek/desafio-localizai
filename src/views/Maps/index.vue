@@ -128,6 +128,7 @@ section {
     border-bottom: 1px solid silver;
     box-sizing: border-box;
     padding: 10px;
+    font-size: 1.4rem;
     display: flex;
     flex-direction: row;
     align-items: center;
