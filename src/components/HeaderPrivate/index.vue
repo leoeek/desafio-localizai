@@ -19,12 +19,18 @@
           <nav>
             <ul>
               <li>
-                <a href="#">Perfil</a>
+                <a
+                href="#"
+                title="Editar o seu perfil"
+                @click="handlePerfil"
+                >{{ logoutText }}</a>
               </li>
               <li>
                 <a
                 href="#"
-                >{{ logoutText }}</a>
+                title="Sair do sistema"
+                @click="handleLogout"
+                >Sair</a>
               </li>
             </ul>
           </nav>
@@ -40,17 +46,26 @@ import { useRouter } from 'vue-router'
 import useStore from '@/hooks/useStore'
 import { computed } from 'vue'
 import { cleanCurrentUser } from '@/store/user'
+import useModal from '@/hooks/useModal'
 
 export default {
   setup () {
     const router = useRouter()
     const store = useStore('User')
+    const modal = useModal()
+
     const logoutText = computed(() => {
       if (!store.currentUser.email) {
         return '...'
       }
-      return `${store.currentUser.first_name} - Sair`
+      return store.currentUser.first_name
     })
+
+    function handlePerfil () {
+      modal.open({
+        component: 'ModalPerfil'
+      })
+    }
 
     function handleLogout () {
       window.localStorage.removeItem('token')
@@ -61,7 +76,8 @@ export default {
     return {
       router,
       logoutText,
-      handleLogout
+      handleLogout,
+      handlePerfil
     }
   }
 }
