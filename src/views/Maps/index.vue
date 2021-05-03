@@ -2,7 +2,8 @@
   <header-private />
 
   <section>
-    <form>
+    <div>
+      <form>
 
         <div>
           <input
@@ -17,36 +18,50 @@
           />
 
           <span title="Distância">{{state.radius}} Km</span>
-
         </div>
 
-    </form>
+      </form>
 
-    <div class="map" ref="mapDivRef"></div>
+      <div class="box-result">
+        <div
+        v-if="state.isLoading"
+        class="loading">
+          Carregando...
+        </div>
 
-    <div class="box-result">
-      <div
-       v-if="state.isLoading"
-       class="loading">
-        Carregando...
-      </div>
-      <div v-else>
-        <div class="item" v-for="place in state.places" :key="place.id">
-          <div class="image">
-            <img :src="place.icon" alt="Icone do establecimento" />
-          </div>
-          <div class="content">
-              <div class="place-name">{{place.name}}</div>
-              <div class="vicinity">{{place.vicinity}}</div>
-          </div>
-          <div class="rating">
-            <div>{{place.rating}}</div>
-            <div><span :class="!place.open_now ? 'closed' : ''">{{place.open_now ? 'Aberto' : 'Fecahdo'}}</span></div>
+        <div v-else>
+          <div class="item" v-for="place in state.places" :key="place.id">
+            <div class="detail">
+              <div class="image">
+                <img :src="place.icon" alt="Icone do establecimento" />
+              </div>
+              <div class="content">
+                  <div class="place-name">{{place.name}}</div>
+                  <div class="vicinity">{{place.vicinity}}</div>
+              </div>
+              <div class="rating">
+                <div>{{place.rating}}</div>
+                <div><span :class="!place.open_now ? 'closed' : ''">{{place.open_now ? 'Aberto' : 'Fecahdo'}}</span></div>
+              </div>
+            </div>
+
+            <div class="item-footer">
+              <a href="#">Favorito <font-awesome-icon icon="star" /> s</a>
+              <a href="#">Avaliar</a>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
 
+    <div>
+      <div class="map" ref="mapDivRef"></div>
+    </div>
+
+  </section>
+
+  <section>
   </section>
 </template>
 
@@ -77,11 +92,8 @@ export default {
     function findCloseBuyButtonPressed () {
       state.isLoading = true
 
-      // const url = 'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+toronto+canada&key=AIzaSyC-HqGre5iKGRLnz1nj4ZNZsu_0Dnap3UA'
-      const URL = `https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${
-            state.lat
-          },${state.lng}&radius=${state.radius *
-            1000}&key=${process.env.VUE_APP_GOOGLEMAPS_KEY}`
+      const radius = state.radius * 1000
+      const URL = `${process.env.VUE_APP_GOOGLEMAPS_URL}/nearbysearch/json?location=${state.lat},${state.lng}&radius=${radius}&key=${process.env.VUE_APP_GOOGLEMAPS_KEY}`
 
       axios.get(URL).then(response => {
         state.places = response.data.results
@@ -96,17 +108,16 @@ export default {
 
     function addLocationsToGoogleMaps () {
       // limpando as marcações atuais
-      console.log('vai limpar geral', markers)
-      if (markers.length > 0) {
-        for (let i = 0; i < markers; i++) {
-          markers[i].setMap(map)
-        }
-      }
+      // console.log('vai limpar geral', markers)
+      // if (markers.length > 0) {
+      //   for (let i = 0; i < markers; i++) {
+      //     markers[i].setMap(map)
+      //   }
+      // }
 
       state.places.forEach((place) => {
         const lat = place.geometry.location.lat
         const lng = place.geometry.location.lng
-        // console.log('lat', lat, lng, place.name)
         const result = new window.google.maps.Marker({
           position: new window.google.maps.LatLng(lat, lng),
           map: map,
@@ -114,8 +125,6 @@ export default {
         })
         markers.push(result)
       })
-
-      console.log('markers', markers)
     }
 
     onMounted(() => {
@@ -131,7 +140,7 @@ export default {
           window.initMap = () => {
             console.log('vai pegar', state.lat, state.lng)
             map = new window.google.maps.Map(mapDivRef.value, {
-              zoom: 8,
+              zoom: 10,
               disableDefaultUI: false,
               mapTypeId: window.google.maps.MapTypeId.ROADMAP,
               center: { lat: state.lat, lng: state.lng }
@@ -158,8 +167,20 @@ export default {
 <style lang="scss" scoped>
 section {
   width: 100%;
-  max-width: 600px;
+  max-width: 1024px;
   margin: 20px auto;
+
+  display: flex;
+  flex-direction: row;
+
+  >div:first-child {
+    width: 100%;
+    max-width: 400px;
+  }
+  >div:last-child {
+    flex: 1;
+    min-width: 400px;
+  }
 }
 
 .loading {
@@ -170,57 +191,118 @@ section {
 }
 
 .map {
-  height: 400px;
-  border: 1px solid red;
+  margin: 65px 20px 20px;
+  box-sizing: border-box;
+  height: 600px;
+  width: 100%;
 }
 
 .box-result {
   > div {
-    border: 1px solid silver;
     margin-top: 20px;
   }
   .item {
-    border-bottom: 1px solid silver;
+    background-color: #FFF;
+    border: 1px solid rgb(240, 240, 240);
     box-sizing: border-box;
-    padding: 10px;
     font-size: 1.4rem;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    margin-bottom: 15px;
 
-    .place-name {
-      font-weight: bold;
+    -webkit-box-shadow: 0 5px 6px -6px #777;
+    -moz-box-shadow: 0 5px 6px -6px #777;
+    box-shadow: 0 5px 6px -6px #777;
+
+    // position: relative;
+
+    // :before, :after {
+    //   z-index: -1;
+    //   position: absolute;
+    //   content: "";
+    //   bottom: 15px;
+    //   left: 10px;
+    //   width: 50%;
+    //   top: 80%;
+    //   max-width:300px;
+    //   background: #777;
+    //   -webkit-box-shadow: 0 7px 10px #777;
+    //   -moz-box-shadow: 0 7px 10px #777;
+    //   box-shadow: 0 7px 10px #777;
+    //   -webkit-transform: rotate(-3deg);
+    //   -moz-transform: rotate(-3deg);
+    //   -o-transform: rotate(-3deg);
+    //   -ms-transform: rotate(-3deg);
+    //   transform: rotate(-3deg);
+    // }
+    // :after {
+    //   -webkit-transform: rotate(3deg);
+    //   -moz-transform: rotate(3deg);
+    //   -o-transform: rotate(3deg);
+    //   -ms-transform: rotate(3deg);
+    //   transform: rotate(3deg);
+    //   right: 10px;
+    //   left: auto;
+    // }
+
+    .detail {
+      padding: 10px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      .place-name {
+        font-weight: bold;
+      }
+
+      .image img {
+        width: 54px;
+      }
+
+      .vicinity {
+        color: #636363
+      }
+
+      .rating {
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .content {
+        flex: 1;
+        padding: 10px 20px;
+      }
+
+      span {
+        background-color: #0086c6;
+        color: #FFF;
+        border-radius: 15px;
+        font-size: 1.2rem;
+        padding: 4px 10px;
+        margin-top: 5px;
+        display: block;
+      }
+      span.closed {
+        background-color: rgb(197, 78, 78);
+      }
     }
 
-    .image img {
-      width: 54px;
-    }
+    .item-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      border-top: 1px solid rgb(240, 240, 240);;
 
-    .vicinity {
-      color: #636363
-    }
+      a {
+        text-decoration: none;
+        color: rgb(71, 71, 71);
+        font-weight: bold;
+        font-size: 1.3rem;
+        padding-top: 5px;
+        padding-bottom: 5px;
 
-    .rating {
-      text-align: center;
-      font-weight: bold;
-    }
-
-    .content {
-      flex: 1;
-      padding: 10px 20px;
-    }
-
-    span {
-      background-color: #0086c6;
-      color: #FFF;
-      border-radius: 15px;
-      font-size: 1.2rem;
-      padding: 4px 10px;
-      margin-top: 5px;
-      display: block;
-    }
-    span.closed {
-      background-color: rgb(197, 78, 78);
+        :hover {
+          color: #0086c6
+        }
+      }
     }
 
   }

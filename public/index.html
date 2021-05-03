@@ -6,20 +6,15 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-HqGre5iKGRLnz1nj4ZNZsu_0Dnap3UA&callback=initMap"
+    async defer
+    ></script>
   </head>
   <body>
     <noscript>
       <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
-    <!-- built files will be auto injected -->
-    
-    <!-- src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" -->
-    <!-- src="https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants+toronto+canada&key=AIzaSyC-HqGre5iKGRLnz1nj4ZNZsu_0Dnap3UA" -->
-    <!-- src="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=1500&type=restaurant&keyword=cruise&key=AIzaSyC-HqGre5iKGRLnz1nj4ZNZsu_0Dnap3UA" -->
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-HqGre5iKGRLnz1nj4ZNZsu_0Dnap3UA&callback=initMap"
-      async defer
-      ></script>
   </body>
 </html>
