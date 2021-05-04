@@ -22,8 +22,9 @@ Este projeto utiliza uma API com dados de teste para simular Login e novos cadas
 - Netlify (para deploy)
 
 ## Instalação
-É necessario acessar o site https://brasil.io/covid19/ para criar um token de acesso a API.
-Feito isso, adicione o token no arquivo .env.local
+Esta utilizando somente tecnologia Frontend.
+Para consultar a documentação e exemplos da API de teste, acesse REQ|RES (https://reqres.in/).
+Para acessar a documentação da API do Google Places acesse (https://cloud.google.com/maps-platform/places/).
 
 ## Setup
 Com docker:
@@ -53,6 +54,17 @@ Com Make:
 ```sh
 make run
 ```
+Home
+![Image da tela de Login](https://github.com/leoeek/desafio-localizai/blob/master/image/Home.png?raw=true)
 
-![Image da tela de estados](https://github.com/leoeek/vue-covid/blob/main/img1.png?raw=true)
-![Image da tela de cidades](https://github.com/leoeek/vue-covid/blob/main/img2.png?raw=true)
+Mapa
+![Image da tela de Mapa](https://github.com/leoeek/desafio-localizai/blob/master/image/maps_1.png?raw=true)
+
+Perfil
+![Image da tela de edição do Perfil](https://github.com/leoeek/desafio-localizai/blob/master/image/perfil.png?raw=true)
+
+Responsiva Mapa
+![Image da tela de Mapa Responsiva](https://github.com/leoeek/desafio-localizai/blob/master/image/menor_1.png?raw=true)
+
+Responsiva Login
+![Image da tela de Mapa Responsiva](https://github.com/leoeek/desafio-localizai/blob/master/image/menor_2.png?raw=true)
