@@ -58,13 +58,17 @@ Home
 ![Image da tela de Login](https://github.com/leoeek/desafio-localizai/blob/master/image/Home.png?raw=true)
 
 Mapa
+
 ![Image da tela de Mapa](https://github.com/leoeek/desafio-localizai/blob/master/image/maps_1.png?raw=true)
 
 Perfil
+
 ![Image da tela de edição do Perfil](https://github.com/leoeek/desafio-localizai/blob/master/image/perfil.png?raw=true)
 
 Responsiva Mapa
+
 ![Image da tela de Mapa Responsiva](https://github.com/leoeek/desafio-localizai/blob/master/image/menor_1.png?raw=true)
 
 Responsiva Login
+
 ![Image da tela de Mapa Responsiva](https://github.com/leoeek/desafio-localizai/blob/master/image/menor_2.png?raw=true)
