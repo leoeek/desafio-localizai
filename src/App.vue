@@ -59,4 +59,15 @@ body {
 button {
   cursor: pointer;
 }
+
+input {
+  padding: 6px;
+  background-color: #F9F9F9;
+  border: 1px solid #c9c9c9;
+  border-radius: 5px;
+}
+
+a {
+  text-decoration: none;
+}
 </style>

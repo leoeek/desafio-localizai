@@ -10,19 +10,13 @@
 
         <div class="menu-section">
 
-          <div class="menu-toggle">
-            <div class="one"></div>
-            <div class="two"></div>
-            <div class="three"></div>
-          </div>
-
           <nav>
             <ul>
               <li>
-                <a href="#">Sobre</a>
-              </li>
-              <li>
-                <a href="#">Crie uma conta</a>
+                <a
+                href="#"
+                @click="() => emit('accountCreate')"
+                >Crie uma conta</a>
               </li>
               <li>
                 <a
@@ -87,6 +81,30 @@ header {
 
   nav ul li a:hover {
     background: rgba(255,255,255, 0.15)
+  }
+}
+
+@media (max-width: 425px) {
+  header {
+    img {
+      margin-left: 0;
+    }
+    nav ul li a {
+      padding: 1rem;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  header {
+    .container {
+      width:  100%;
+      flex-direction: column;
+
+      .menu-section {
+        padding-bottom: 20px;
+      }
+    }
   }
 }
 </style>

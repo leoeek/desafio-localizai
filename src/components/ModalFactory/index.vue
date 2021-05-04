@@ -26,12 +26,16 @@ import { reactive, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue'
 import useModal from '@/hooks/useModal'
 const ModalLogin = defineAsyncComponent(() => import('../ModalLogin'))
 const ModalPerfil = defineAsyncComponent(() => import('../ModalPerfil'))
+const ModalAccountCreate = defineAsyncComponent(() => import('../ModalAccountCreate'))
+const ModalComments = defineAsyncComponent(() => import('../ModalComments'))
 const DEFAULT_WIDTH = 'w-3/4 lg:w-1/3'
 
 export default {
   components: {
     ModalLogin,
-    ModalPerfil
+    ModalPerfil,
+    ModalAccountCreate,
+    ModalComments
   },
   setup () {
     const modal = useModal()
@@ -41,12 +45,15 @@ export default {
       props: {},
       width: DEFAULT_WIDTH
     })
+
     onMounted(() => {
       modal.listen(handleModalToogle)
     })
+
     onBeforeUnmount(() => {
       modal.off(handleModalToogle)
     })
+
     function handleModalToogle (payload) {
       if (payload.status) {
         state.component = payload.component
@@ -59,6 +66,7 @@ export default {
       }
       state.isActive = payload.status
     }
+
     return {
       state,
       handleModalToogle

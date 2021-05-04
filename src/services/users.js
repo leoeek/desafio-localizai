@@ -8,10 +8,10 @@ export default httpClient => ({
     }
   },
   updateProfile: async (user) => {
-    const { first_name, last_name, email } = user
-    const response = await httpClient.put('/users/2', {
-      first_name, last_name, email
-    })
+    if (user.password.length === 0) {
+      delete (user.password)
+    }
+    const response = await httpClient.put('/users/2', user)
 
     let errors = null
     if (!response.data) {

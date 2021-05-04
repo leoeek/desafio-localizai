@@ -1,14 +1,11 @@
 <template>
-  <div id="modal-perfil">
-    <h1>Olá {{ state.first_name }}</h1>
+  <div id="modal-account-create">
+    <h1>Crie sua conta</h1>
     <button @click="close">&times;</button>
   </div>
 
   <div>
     <form @submit.prevent="handleSubmit">
-      <div>
-        <img :src="state.avatar" alt="Foto do Avatar" />
-      </div>
 
       <label>
         <span class="lb">Nome</span>
@@ -50,7 +47,7 @@
           class="text-danger"
           v-if="!!state.lastName.errorMessage"
         >
-          {{ state.email.errorMessage }}
+          {{ state.lastName.errorMessage }}
         </span>
       </label>
 
@@ -82,22 +79,33 @@
           id="password-field"
           v-model="state.password.value"
           type="password"
+          required
+          :class="{
+            'border-danger': !!state.password.errorMessage
+          }"
           placeholder="******"
           title="Informe a sua senha"
         >
+        <span
+          v-if="!!state.password.errorMessage"
+          class="text-danger"
+        >
+          {{ state.password.errorMessage }}
+        </span>
       </label>
 
       <button
         id="submit-button"
         :disabled="state.isLoading"
         type="submit"
-        title="Atualizar perfil"
+        title="Criar a conta"
         :class="{
           'opacity-50': state.isLoading
         }"
       >
+
         <span v-if="state.isLoading">Aguarde...</span>
-        <span v-else>Atualizar</span>
+        <span v-else>Criar</span>
       </button>
     </form>
   </div>
@@ -105,27 +113,17 @@
 
 <script>
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useField } from 'vee-validate'
 import { useToast } from 'vue-toastification'
-import useModal from '@/hooks/useModal'
-import { validateEmptyAndLength3, validateEmptyAndEmail } from '@/utils/validators'
-import services from '@/services'
-import useStore from '@/hooks/useStore'
+import useModal from '../../hooks/useModal'
+import { validateEmptyAndLength3, validateEmptyAndEmail } from '../../utils/validators'
+import services from '../../services'
 export default {
   setup () {
+    const router = useRouter()
     const modal = useModal()
     const toast = useToast()
-    const store = useStore('User')
-
-    const {
-      value: nameValue,
-      errorMessage: nameErrorMessage
-    } = useField('name', validateEmptyAndLength3)
-
-    const {
-      value: lastNameValue,
-      errorMessage: lastNameErrorMessage
-    } = useField('lastName', validateEmptyAndLength3)
 
     const {
       value: emailValue,
@@ -137,17 +135,19 @@ export default {
       errorMessage: passwordErrorMessage
     } = useField('password', validateEmptyAndLength3)
 
+    const {
+      value: nameValue,
+      errorMessage: nameErrorMessage
+    } = useField('name', validateEmptyAndLength3)
+
+    const {
+      value: lastNameValue,
+      errorMessage: lastNameErrorMessage
+    } = useField('lastName', validateEmptyAndLength3)
+
     const state = reactive({
       hasErrors: false,
       isLoading: false,
-      name: {
-        value: nameValue,
-        errorMessage: nameErrorMessage
-      },
-      lastName: {
-        value: lastNameValue,
-        errorMessage: lastNameErrorMessage
-      },
       email: {
         value: emailValue,
         errorMessage: emailErrorMessage
@@ -155,49 +155,51 @@ export default {
       password: {
         value: passwordValue,
         errorMessage: passwordErrorMessage
+      },
+      name: {
+        value: nameValue,
+        errorMessage: nameErrorMessage
+      },
+      lastName: {
+        value: lastNameValue,
+        errorMessage: lastNameErrorMessage
       }
     })
-
-    const user = store.currentUser
-    state.avatar = user.avatar
-    state.name.value = user.first_name
-    state.lastName.value = user.last_name
-    state.email.value = user.email
-    state.password.value = ''
 
     async function handleSubmit () {
       try {
         toast.clear()
-
-        if (state.password.value.length > 0 && state.password.value.length < 3) {
-          toast.error('Atenção! A senha deve ter no mínimo 3 caracteres!')
-          return
-        }
-
         state.isLoading = true
-        const { errors } = await services.users.updateProfile({
-          first_name: state.name.value,
-          last_name: state.lastName.value,
+
+        const { data, errors } = await services.auth.accountCreate({
+          name: state.name.value,
+          lastName: state.lastName.value,
           email: state.email.value,
           password: state.password.value
         })
 
         if (!errors) {
-          toast.success('Perfil atualizado com sucesso!')
+          window.localStorage.setItem('token', data.token)
+          router.push({ name: 'Maps' })
           state.isLoading = false
           modal.close()
           return
         }
-
+        if (errors.status === 404) {
+          toast.error('Atenção! E-mail não encontrado')
+        }
+        if (errors.status === 401) {
+          toast.error('Hummm, verifique E-mail/senha')
+        }
         if (errors.status === 400) {
-          toast.error('Ops! Erro ao atualizar o perfil!')
+          toast.error('Ops! Ocorreu um erro ao fazer o login')
         }
         state.isLoading = false
       } catch (error) {
         state.isLoading = false
         state.hasErrors = !!error
-        toast.error('Ocorreu um erro ao atualizar o perfil!')
-        console.log('er', error)
+        toast.error('Ocorreu um erro ao fazer o login')
+        console.log('error', error)
       }
     }
 
@@ -211,7 +213,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#modal-perfil {
+#modal-account-create {
   display: flex;
   justify-content: space-between;
   margin-bottom: 16px;
@@ -236,22 +238,6 @@ export default {
 }
 
 form {
-
-  > div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    img {
-      width: 94px;
-      border-top-left-radius: 15px;
-      border-bottom-right-radius: 15px;
-      -webkit-box-shadow: 0 8px 6px -6px #777;
-      -moz-box-shadow: 0 8px 6px -6px #777;
-      box-shadow: 0 8px 6px -6px #777;
-    }
-  }
-
   label {
     display: block;
     margin-bottom: 5px;
@@ -279,8 +265,8 @@ form {
     }
   }
 
-  label:nth-child(2) {
-    margin-top: 30px;
+  label {
+    margin-top: 20px;
   }
 
   button {

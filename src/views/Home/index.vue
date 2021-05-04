@@ -2,18 +2,18 @@
   <Header
     @create-account="handleAccountCreate"
     @login="handleLogin"
+    @accountCreate="handleAccountCreate"
   />
 
   <section class="base">
     <div class="container">
       <div>
-        <h2>
-          Já pensou em usar a tecnologia para ter uma visão além do alcance?
-        </h2>
-        <p>
-          O LocalizaI amplia a sua visão utilizando o Google Maps, expandindo suas escolhas!
-        </p>
-        <a href="#" class="button">Preciso do localiza-i :)</a>
+        <img src="@/assets/images/geolocalização.jpg" />
+      </div>
+      <div>
+        <h2>Já pensou em usar a melhor tecnologia para ter a visão além do alcance?</h2>
+        <p>O localiza-i amplia a sua visão utilizando o Google Maps para expandir suas escolhas!</p>
+        <p><a href="#" @click="handleAccountCreate" title="Criar uma conta">Preciso do localiza-i <font-awesome-icon icon="smile" /></a></p>
       </div>
     </div>
   </section>
@@ -57,17 +57,58 @@ section.base {
   .container {
     width: 90%;
     max-width: 980px;
-
     margin: auto;
-
     display: flex;
+    justify-content: center;
+
+    div:last-child {
+      padding-left: 40px;
+    }
   }
 
   p {
-    color: rgb(154, 142, 191);
+    color: rgb(69, 100, 184);
     font-size: 1.8rem;
     line-height: 3.2rem;
     margin: 10px 0px 0px;
+
+    a {
+      background-color: #d67010;
+      padding: 10px 20px;
+      border-radius: 20px;
+      color: #FFF;
+      display: block;
+      width: 250px;
+      margin: 50px auto;
+
+      &:hover {
+        background-color: #e28937;
+        font-weight: bold;
+      }
+    }
+  }
+
+  img {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 425px) {
+  section.base {
+    margin-top: 0;
+
+    .container {
+      width:  100%;
+      flex-direction: column;
+
+      div:last-child {
+        padding: 15px;
+        text-align: center;
+      }
+    }
+    img {
+      max-width: 100%;
+    }
   }
 }
 </style>

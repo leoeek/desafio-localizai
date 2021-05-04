@@ -11,13 +11,12 @@
           min="5"
           max="30"
           step="5"
-          list="tickmarks"
           :title="`Distância de ${state.radius} Km de alcance do filtro`"
           v-model="state.radius"
-          v-on:change="findCloseBuyButtonPressed"
+          v-on:change="handleSearch"
           />
 
-          <span title="Distância">{{state.radius}} Km</span>
+          <span title="Distância do alcance da pesquisa">{{state.radius}} Km</span>
         </div>
 
       </form>
@@ -46,8 +45,17 @@
             </div>
 
             <div class="item-footer">
-              <a href="#">Favorito <font-awesome-icon icon="star" /> s</a>
-              <a href="#">Avaliar</a>
+              <a
+              href="#"
+              @click.prevent="handleLike(place)"
+              title="Adicionar como favorito"
+              class="like"><font-awesome-icon icon="heart" :class="place.like ? 'icon-red' : ''" class="font-icon" /></a>
+
+              <a
+              href="#"
+              @click.prevent="handleComment(place)"
+              title="Comentar sobre o local"
+              class="comment"><font-awesome-icon icon="comment" :class="place.comments ? 'icon-blue' : ''" class="font-icon" /></a>
             </div>
           </div>
         </div>
@@ -67,12 +75,18 @@
 
 <script>
 import HeaderPrivate from '@/components/HeaderPrivate'
-import { computed, onMounted, reactive, ref } from '@vue/runtime-core'
+import { onMounted, reactive, ref } from '@vue/runtime-core'
+import { useToast } from 'vue-toastification'
+import useModal from '@/hooks/useModal'
+import { setPlace } from '@/store/place'
 import axios from 'axios'
 
 export default {
   components: { HeaderPrivate },
   setup () {
+    const modal = useModal()
+    const toast = useToast()
+
     const state = reactive({
       isLoading: false,
       lat: 0,
@@ -81,15 +95,11 @@ export default {
       places: []
     })
 
-    let map
-    const markers = []
     const mapDivRef = ref(null)
+    let map
+    let markers = []
 
-    const coordinates = computed(() => {
-      return `${state.lat}, ${state.lng}`
-    })
-
-    function findCloseBuyButtonPressed () {
+    function handleSearch () {
       state.isLoading = true
 
       const radius = state.radius * 1000
@@ -97,23 +107,27 @@ export default {
 
       axios.get(URL).then(response => {
         state.places = response.data.results
+
         addLocationsToGoogleMaps()
 
         state.isLoading = false
       }).catch(error => {
-        console.log(error.message)
         state.isLoading = false
+        console.log('error', error)
       })
     }
 
+    function deleteMarkes () {
+      if (markers.length > 0) {
+        for (let i = 0; i < markers.length; i++) {
+          markers[i].setMap(null)
+        }
+        markers = []
+      }
+    }
+
     function addLocationsToGoogleMaps () {
-      // limpando as marcações atuais
-      // console.log('vai limpar geral', markers)
-      // if (markers.length > 0) {
-      //   for (let i = 0; i < markers; i++) {
-      //     markers[i].setMap(map)
-      //   }
-      // }
+      deleteMarkes()
 
       state.places.forEach((place) => {
         const lat = place.geometry.location.lat
@@ -124,21 +138,28 @@ export default {
           title: place.name
         })
         markers.push(result)
+
+        // marcando o objeto com like
+        if (window.localStorage.getItem('likes')) {
+          const likes = JSON.parse(window.localStorage.getItem('likes'))
+          const found = likes.find(el => el === place.place_id)
+          place.like = (found)
+        }
       })
     }
 
     onMounted(() => {
       const error = (err) => {
-        console.log('Error getting location', err)
+        toast.error('Atenção! Não foi possível acessar a sua localização!')
+        console.log('err', err)
       }
 
       navigator.geolocation.getCurrentPosition(
         position => {
-          state.lat = -22.117086 // position.coords.latitude
-          state.lng = -43.191759 // position.coords.longitude
+          state.lat = position.coords.latitude // -22.117086
+          state.lng = position.coords.longitude // -43.191759
 
           window.initMap = () => {
-            console.log('vai pegar', state.lat, state.lng)
             map = new window.google.maps.Map(mapDivRef.value, {
               zoom: 10,
               disableDefaultUI: false,
@@ -147,18 +168,53 @@ export default {
             })
           }
 
-          findCloseBuyButtonPressed()
+          handleSearch()
         },
         error
       )
     })
 
+    function handleLike (place) {
+      const { place_id } = place
+      if (place_id.length > 0) {
+        let likes = []
+
+        if (place.like) {
+          likes = JSON.parse(window.localStorage.getItem('likes'))
+          const i = likes.indexOf(place_id)
+          likes.splice(i, 1)
+          window.localStorage.setItem('likes', JSON.stringify(likes))
+          place.like = false
+          return
+        }
+
+        place.like = true
+        if (window.localStorage.getItem('likes')) {
+          likes = JSON.parse(window.localStorage.getItem('likes'))
+        }
+
+        likes.push(place_id)
+        const likesUnique = [...new Set(likes)]
+        window.localStorage.setItem('likes', JSON.stringify(likesUnique))
+      }
+    }
+
+    function handleComment (place) {
+      if (place.place_id.length > 0) {
+        setPlace(place)
+        modal.open({
+          component: 'ModalComments'
+        })
+      }
+    }
+
     return {
       HeaderPrivate,
       state,
-      findCloseBuyButtonPressed,
-      coordinates,
-      mapDivRef
+      handleSearch,
+      mapDivRef,
+      handleLike,
+      handleComment
     }
   }
 }
@@ -173,11 +229,11 @@ section {
   display: flex;
   flex-direction: row;
 
-  >div:first-child {
+  > div:first-child {
     width: 100%;
     max-width: 400px;
   }
-  >div:last-child {
+  > div:last-child {
     flex: 1;
     min-width: 400px;
   }
@@ -211,37 +267,6 @@ section {
     -webkit-box-shadow: 0 5px 6px -6px #777;
     -moz-box-shadow: 0 5px 6px -6px #777;
     box-shadow: 0 5px 6px -6px #777;
-
-    // position: relative;
-
-    // :before, :after {
-    //   z-index: -1;
-    //   position: absolute;
-    //   content: "";
-    //   bottom: 15px;
-    //   left: 10px;
-    //   width: 50%;
-    //   top: 80%;
-    //   max-width:300px;
-    //   background: #777;
-    //   -webkit-box-shadow: 0 7px 10px #777;
-    //   -moz-box-shadow: 0 7px 10px #777;
-    //   box-shadow: 0 7px 10px #777;
-    //   -webkit-transform: rotate(-3deg);
-    //   -moz-transform: rotate(-3deg);
-    //   -o-transform: rotate(-3deg);
-    //   -ms-transform: rotate(-3deg);
-    //   transform: rotate(-3deg);
-    // }
-    // :after {
-    //   -webkit-transform: rotate(3deg);
-    //   -moz-transform: rotate(3deg);
-    //   -o-transform: rotate(3deg);
-    //   -ms-transform: rotate(3deg);
-    //   transform: rotate(3deg);
-    //   right: 10px;
-    //   left: auto;
-    // }
 
     .detail {
       padding: 10px;
@@ -299,8 +324,36 @@ section {
         padding-top: 5px;
         padding-bottom: 5px;
 
+        .font-icon {
+          font-size: 2.1rem;
+        }
+      }
+
+      .like {
         :hover {
-          color: #0086c6
+          color: red;
+        }
+
+        .icon-red {
+          color: red;
+
+          :hover {
+            color: red;
+          }
+        }
+      }
+
+      .comment {
+        :hover {
+          color: #0086c6;
+        }
+
+        .icon-blue {
+          color: #0086c6;
+
+          :hover {
+            color: #0086c6;
+          }
         }
       }
     }
@@ -422,4 +475,31 @@ form {
     background: #2497E3;
   }
 }
+
+@media (max-width: 1024px) {
+  section {
+    padding-left: 20px;
+
+    .map {
+      width: 94%
+    }
+  }
+}
+@media (max-width: 768px) {
+  section {
+    flex-direction: column;
+    align-items: center;
+
+    > div:last-child {
+      min-width: 100%;
+    }
+
+    .map {
+      width: 95%;
+      margin: 65px 5px 20px;
+
+    }
+  }
+}
+
 </style>

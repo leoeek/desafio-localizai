@@ -13,17 +13,11 @@
           v-model="state.email.value"
           type="email"
           :class="{
-            'border-brand-danger': !!state.email.errorMessage
+            'border-danger': !!state.email.errorMessage
           }"
           placeholder="seu-email@algo.com"
         >
-        <span
-          id="email-error"
-          class="text-danger"
-          v-if="!!state.email.errorMessage"
-        >
-          {{ state.email.errorMessage }}
-        </span>
+
       </label>
 
       <label>
@@ -37,12 +31,6 @@
           }"
           placeholder="******"
         >
-        <span
-          v-if="!!state.password.errorMessage"
-          class="text-danger"
-        >
-          {{ state.password.errorMessage }}
-        </span>
       </label>
 
       <button
@@ -53,9 +41,8 @@
           'opacity-50': state.isLoading
         }"
       >
-        <!-- <icon v-if="state.isLoading" name="loading" class="animate-spin" /> -->
-        <!-- <span v-else>Entrar</span> -->
-        <span>Entrar</span>
+        <span v-if="state.isLoading">Aguarde...</span>
+        <span v-else>Entrar</span>
       </button>
     </form>
   </div>
@@ -67,11 +54,9 @@ import { useRouter } from 'vue-router'
 import { useField } from 'vee-validate'
 import { useToast } from 'vue-toastification'
 import useModal from '../../hooks/useModal'
-// import Icon from '../Icon'
 import { validateEmptyAndLength3, validateEmptyAndEmail } from '../../utils/validators'
 import services from '../../services'
 export default {
-  // components: { Icon },
   setup () {
     const router = useRouter()
     const modal = useModal()
@@ -123,14 +108,13 @@ export default {
           toast.error('Hummm, verifique E-mail/senha')
         }
         if (errors.status === 400) {
-          toast.error('Ops! Ocorreu um erro ao fazer o login')
+          toast.error('Ops! verifique E-mail/senha')
         }
         state.isLoading = false
       } catch (error) {
         state.isLoading = false
         state.hasErrors = !!error
         toast.error('Ocorreu um erro ao fazer o login')
-        console.log('error', error)
       }
     }
 
@@ -183,12 +167,7 @@ form {
     input {
       display: block;
       width: 100%;
-      padding: 6px;
       margin-top: 1px;
-      background-color: #F9F9F9;
-      border-width: 2px;
-      border-color: transparent;
-      border-radius: 5px;
     }
 
     .text-danger {
@@ -197,7 +176,7 @@ form {
       display: block;
     }
     .border-danger {
-      border-color: #ca675a;
+      border-color: red;
     }
   }
 
