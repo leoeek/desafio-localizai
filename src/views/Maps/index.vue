@@ -79,7 +79,6 @@ import { onMounted, reactive, ref } from '@vue/runtime-core'
 import { useToast } from 'vue-toastification'
 import useModal from '@/hooks/useModal'
 import { setPlace } from '@/store/place'
-import axios from 'axios'
 
 export default {
   components: { HeaderPrivate },
@@ -98,22 +97,24 @@ export default {
     const mapDivRef = ref(null)
     let map
     let markers = []
+    let pyrmont
 
     function handleSearch () {
       state.isLoading = true
 
-      const radius = state.radius * 1000
-      const URL = `${process.env.VUE_APP_GOOGLEMAPS_URL}/nearbysearch/json?location=${state.lat},${state.lng}&radius=${radius}&key=${process.env.VUE_APP_GOOGLEMAPS_KEY}`
+      const services = new window.google.maps.places.PlacesService(map)
+      const request = {
+        location: pyrmont,
+        radius: state.radius * 1000
+      }
+      services.nearbySearch(request, (results, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          console.log(results)
+          state.places = results
+          addLocationsToGoogleMaps()
 
-      axios.get(URL).then(response => {
-        state.places = response.data.results
-
-        addLocationsToGoogleMaps()
-
-        state.isLoading = false
-      }).catch(error => {
-        state.isLoading = false
-        console.log('error', error)
+          state.isLoading = false
+        }
       })
     }
 
@@ -130,10 +131,9 @@ export default {
       deleteMarkes()
 
       state.places.forEach((place) => {
-        const lat = place.geometry.location.lat
-        const lng = place.geometry.location.lng
+        const placeLoc = place.geometry.location
         const result = new window.google.maps.Marker({
-          position: new window.google.maps.LatLng(lat, lng),
+          position: placeLoc,
           map: map,
           title: place.name
         })
@@ -160,19 +160,26 @@ export default {
           state.lng = position.coords.longitude // -43.191759
 
           window.initMap = () => {
+            pyrmont = new window.google.maps.LatLng(state.lat, state.lng)
+
             map = new window.google.maps.Map(mapDivRef.value, {
               zoom: 10,
               disableDefaultUI: false,
               mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-              center: { lat: state.lat, lng: state.lng }
+              center: pyrmont
             })
-          }
 
-          handleSearch()
+            handleSearch()
+          }
         },
         error
       )
     })
+
+    // function initialize () {
+    //   console.log('si, de boas')
+    // }
+    // window.google.maps.event.addDomListener(window, 'load', initialize)
 
     function handleLike (place) {
       const { place_id } = place
