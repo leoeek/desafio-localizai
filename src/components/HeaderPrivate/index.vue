@@ -125,4 +125,23 @@ header {
     background: rgba(255,255,255, 0.15)
   }
 }
+
+@media (max-width: 375px) {
+  header {
+    min-width:  320px;
+    .container {
+      width:  100%;
+      flex-direction: column;
+
+      .menu-section {
+        padding-bottom: 20px;
+      }
+
+      img {
+        margin: 0;
+      }
+    }
+  }
+}
+
 </style>

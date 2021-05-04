@@ -5,7 +5,7 @@
     <div>
       <form>
 
-        <div>
+        <div v-if="!state.isLoading">
           <input
           type="range"
           min="5"
@@ -489,10 +489,11 @@ form {
     padding-left: 20px;
 
     .map {
-      width: 94%
+      width: 88%;
     }
   }
 }
+
 @media (max-width: 768px) {
   section {
     flex-direction: column;
@@ -504,10 +505,21 @@ form {
 
     .map {
       width: 95%;
-      margin: 65px 5px 20px;
-
+      margin: auto;
     }
+
   }
 }
 
+@media (max-width: 425px) {
+  section {
+    margin-top: 5px;
+    padding: 0;
+    min-width: 320px;
+
+    > div:first-child {
+      max-width: 88%;
+    }
+  }
+}
 </style>

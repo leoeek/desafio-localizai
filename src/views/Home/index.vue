@@ -93,7 +93,23 @@ section.base {
   }
 }
 
-@media (max-width: 425px) {
+@media (max-width: 768px) {
+  section.base {
+    .container {
+      div:last-child {
+        box-sizing: border-box;
+        padding: 15px;
+        text-align: center;
+      }
+    }
+    img {
+      width: 100%;
+      min-width: 245px;
+    }
+  }
+}
+
+@media (max-width: 574px) {
   section.base {
     margin-top: 0;
 
@@ -102,8 +118,8 @@ section.base {
       flex-direction: column;
 
       div:last-child {
-        padding: 15px;
-        text-align: center;
+        box-sizing: border-box;
+        padding: 5px 35px 0 25px;
       }
     }
     img {

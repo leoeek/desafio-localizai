@@ -1,11 +1,9 @@
 version: '3'
 
-services:
-  node:
-    image: node:15
+services: 
+  app: 
+    build: . 
     ports:
       - '8080:8080'
     volumes:
-      - ./:/srv/app
-    working_dir: /srv/app
-    command: 'npm run serve'
+      - .:/usr/app 
