@@ -79,7 +79,7 @@ export default {
       place_id: false,
       user: '',
       commentsAll: [],
-      comments: false,
+      comments: [],
       comment: {
         value: commentValue,
         errorMessage: commentErrorMessage
@@ -110,8 +110,13 @@ export default {
     async function handleSubmit () {
       try {
         toast.clear()
-        state.isLoading = true
 
+        if (state.comment.value === undefined || state.comment.value.length < 3) {
+          toast.error('O comentário é obrigatório!')
+          return
+        }
+
+        state.isLoading = true
         const dt = new Date()
         const df = new Intl.DateTimeFormat('pt', { dateStyle: 'full', timeStyle: 'long' })
 

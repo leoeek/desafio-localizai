@@ -9,5 +9,4 @@ export default state
 
 export function setPlace (place) {
   state.place = place
-  console.log('store place', place)
 }

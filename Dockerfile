@@ -1,8 +1,6 @@
-FROM node:13-alpine as build-localizai
+FROM node:13-alpine as build-stage
 
-WORKDIR /usr/app
-
-RUN npm install -g http-server
+WORKDIR /app
 
 COPY package*.json ./
 
@@ -12,5 +10,12 @@ COPY . .
 
 RUN npm run build
 
-EXPOSE 8080
-CMD [ "http-server", "dist" ]
+FROM nginx:stable-alpine as production-stage
+
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
