@@ -68,9 +68,6 @@
     </div>
 
   </section>
-
-  <section>
-  </section>
 </template>
 
 <script>
@@ -109,10 +106,8 @@ export default {
       }
       services.nearbySearch(request, (results, status) => {
         if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-          console.log(results)
           state.places = results
           addLocationsToGoogleMaps()
-
           state.isLoading = false
         }
       })
@@ -154,6 +149,13 @@ export default {
         console.log('err', err)
       }
 
+      if (!window.google) {
+        var script = document.createElement('script')
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyC-HqGre5iKGRLnz1nj4ZNZsu_0Dnap3UA&libraries=places&callback=initMap&v=weekly'
+        script.async = true
+        document.head.appendChild(script)
+      }
+
       navigator.geolocation.getCurrentPosition(
         position => {
           state.lat = position.coords.latitude // -22.117086
@@ -171,15 +173,14 @@ export default {
 
             handleSearch()
           }
+
+          if (window.google) {
+            window.initMap()
+          }
         },
         error
       )
     })
-
-    // function initialize () {
-    //   console.log('si, de boas')
-    // }
-    // window.google.maps.event.addDomListener(window, 'load', initialize)
 
     function handleLike (place) {
       const { place_id } = place
