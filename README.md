@@ -20,6 +20,7 @@ Este projeto utiliza uma API com dados de teste para simular Login e novos cadas
 - Docker e Docker-compose
 - Nginx e node (para deploy final no docker)
 - Netlify (para deploy)
+- tiny-emitter
 
 ## Instalação
 Esta utilizando somente tecnologia Frontend.
